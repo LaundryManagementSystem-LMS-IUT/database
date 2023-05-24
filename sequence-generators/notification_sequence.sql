@@ -1,0 +1,6 @@
+DROP SEQUENCE notification_sequence;
+CREATE SEQUENCE notification_sequence
+INCREMENT 1
+MINVALUE 0
+MAXVALUE 9999999999
+START 0;
