@@ -1,154 +1,195 @@
-DROP TABLE REVIEWER;
-DROP TABLE ORDER_STATUS;
-DROP TABLE Wash;
-DROP TABLE DryWash;
-DROP TABLE WashAndIron;
-DROP TABLE Iron;
-DROP TABLE ClothClassification;
-DROP TABLE SERVICE;
+DROP TABLE CHAT_SENDER;
+DROP TABLE CHAT_RECEIVER;
+DROP TABLE NOTIFICATION;
+DROP TABLE CHAT;
+DROP TABLE ADDRESS_RESOLVE;
+DROP TABLE BILLING;
 DROP TABLE ORDER_DETAILS;
-DROP TABLE ORDERS;
-DROP TABLE LAUNDRY_MANAGER;
-DROP TABLE LAUNDRY_USER;
-DROP TABLE Notification;
+DROP TABLE DELIVERY_INFORMATION;
+DROP TABLE SERVICE;
+DROP TABLE REVIEW_DELIVERY;
+DROP TABLE REVIEW_LAUNDRY;
+DROP TABLE CUSTOMER;
+DROP TABLE MANAGER;
+DROP TABLE DELIVERY;
+DROP TABLE GOOGLE_OAUTH;
+DROP TABLE PASSWORD_AUTH;
 DROP TABLE USERS;
-DROP TABLE LAUNDRY;
 
-CREATE TABLE USERS(
-  username varchar(100),
-  email varchar(100),
-  password varchar(250),
-  CONSTRAINT pk_USERS PRIMARY KEY (email)
+CREATE TABLE USERS (
+    Username varchar(100),
+    Email varchar(100),
+    ProfilePicture varchar(100),
+    PhoneNumber varchar(15),
+    EmailVerified BOOLEAN,
+    PhoneNumberVerified BOOLEAN,
+    CONSTRAINT pk_USERS PRIMARY KEY (Email),
+    CONSTRAINT Uniq_USERS UNIQUE (PhoneNumber)
 );
 
-CREATE TABLE LAUNDRY(
-  laundryID varchar(50),
-  laundryName varchar(100),
-  laundryAddress varchar(100),
-  CONSTRAINT pk_LAUNDRY PRIMARY KEY (laundryID)
+CREATE TABLE PASSWORD_AUTH(
+  Email varchar(100),
+  Password varchar(200),
+  CONSTRAINT pk_PASSWORD_AUTH PRIMARY KEY(Email),
+  CONSTRAINT fk_PASSWORD_AUTH FOREIGN KEY(Email) REFERENCES USERS(Email) ON DELETE CASCADE
 );
 
-CREATE TABLE LAUNDRY_MANAGER(
-  email varchar(100),
-  laundryID varchar(50) NULL,
-  CONSTRAINT pk_LaundryManager PRIMARY KEY (email),
-  CONSTRAINT fk_LaundryManagerUSER FOREIGN KEY(email) REFERENCES USERS(email) ON DELETE CASCADE,
-  CONSTRAINT fk_LaundryManagerLaundry FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID) ON DELETE CASCADE
+CREATE TABLE GOOGLE_OAUTH(
+  Email varchar(100),
+  GoogleId varchar(200),
+  CONSTRAINT pk_GOOGLE_OAUTH PRIMARY KEY(Email),
+  CONSTRAINT Uniq_GOOGLE_OAUTH UNIQUE(GoogleId),
+  CONSTRAINT fk_GOOGLE_OAUTH FOREIGN KEY(Email) REFERENCES USERS(Email) ON DELETE CASCADE
 );
 
-CREATE TABLE LAUNDRY_USER(
-  email varchar(100),
-  CONSTRAINT pk_LaundryUser PRIMARY KEY (email),
-  CONSTRAINT fk_LaundryUser FOREIGN KEY(email) REFERENCES USERS(email) ON DELETE CASCADE
+CREATE TABLE ADDRESS_RESOLVE(
+  latitude double precision,
+  longuitude double precision,
+  FormattedAddress varchar(100),
+  CONSTRAINT PK_ADDRESS_RESOLVE PRIMARY KEY(latitude,longuitude)
 );
 
-CREATE TABLE REVIEWER(
-  laundryID varchar(50),
-  email varchar(100),
-  ReviewStars NUMERIC,
-  Review varchar(512),
-  CONSTRAINT pk_LaundryReview PRIMARY KEY (laundryID,email),
-  CONSTRAINT revStarLimit CHECK(ReviewStars<=10),
-  CONSTRAINT fk_REVIEW_USERS FOREIGN KEY(email) REFERENCES LAUNDRY_USER(email) ON DELETE CASCADE,
-  CONSTRAINT fk_REVIEW_LAUNDRY FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID) ON DELETE CASCADE
+CREATE TYPE ADDRESS_TYPE AS (
+  latitude double precision,
+  longuitude double precision
 );
 
+
+
+CREATE TABLE MANAGER(
+  Email varchar(100),
+  LaundryName varchar(100),
+  Address ADDRESS_TYPE,
+  OpeningTime time,
+  ClosingTime time,
+  CONSTRAINT pk_MANAGER PRIMARY KEY(Email),
+  CONSTRAINT fk_MANAGER FOREIGN KEY(Email) REFERENCES USERS(Email) ON DELETE CASCADE
+);
+
+CREATE TABLE CUSTOMER(
+  Email varchar(100),
+  Address ADDRESS_TYPE,
+  CONSTRAINT pk_CUSTOMER PRIMARY KEY(Email),
+  CONSTRAINT fk_CUSTOMER FOREIGN KEY(Email) REFERENCES USERS(Email) ON DELETE CASCADE
+);
+
+CREATE TABLE DELIVERY(
+  Email varchar(100),
+  ModeOfTransportation varchar(100),
+  CONSTRAINT pk_DELIVERY PRIMARY KEY(Email),
+  CONSTRAINT fk_DELIVERY FOREIGN KEY(Email) REFERENCES USERS(Email) ON DELETE CASCADE
+);
+
+CREATE TABLE CHAT(
+  MessageID varchar(100),
+  Message varchar(250),
+  TimeOfDelivery timestamp,
+  CONSTRAINT pk_CHAT PRIMARY KEY(MessageID)
+);
+
+CREATE TABLE CHAT_SENDER(
+  MessageID varchar(100),
+  SenderEmail varchar(100),
+  CONSTRAINT pk_CHAT_SENDER PRIMARY KEY(MessageID),
+  CONSTRAINT fk_CHAT_SENDER_CHAT FOREIGN KEY(MessageID) REFERENCES CHAT(MessageID) ON DELETE CASCADE,
+  CONSTRAINT fk_CHAT_SENDER_USERS FOREIGN KEY(SenderEmail) REFERENCES USERS(Email)
+);
+
+CREATE TABLE CHAT_RECEIVER(
+  MessageID varchar(100),
+  ReceiverEmail varchar(100),
+  CONSTRAINT pk_CHAT_RECEIVER PRIMARY KEY(MessageID),
+  CONSTRAINT fk_CHAT_RECEIVER_CHAT FOREIGN KEY(MessageID) REFERENCES CHAT(MessageID) ON DELETE CASCADE,
+  CONSTRAINT fk_CHAT_RECEIVER_USERS FOREIGN KEY(ReceiverEmail) REFERENCES USERS(Email)
+);
+
+CREATE TABLE NOTIFICATION(
+  NotificationID varchar(100),
+  Email varchar(100),
+  Message varchar(250),
+  CONSTRAINT pk_NOTIFICATION PRIMARY KEY(NotificationID),
+  CONSTRAINT fk_NOTIFICATION FOREIGN KEY(Email) REFERENCES USERS(Email)
+);
 
 CREATE TABLE ORDERS(
-  orderID varchar(100),
-  email varchar(100),
-  laundryID varchar(50),
-  CONSTRAINT pk_Order PRIMARY KEY(orderID),
-  CONSTRAINT uniq_order UNIQUE(email,orderID),
-  CONSTRAINT fk_Order FOREIGN KEY(email) REFERENCES LAUNDRY_USER(email) ON DELETE CASCADE
+  OrderID varchar(100),
+  CustomerEmail varchar(100),
+  ManagerEmail varchar(100),
+  Status varchar(20),
+  CONSTRAINT pk_ORDER PRIMARY KEY(OrderID),
+  CONSTRAINT fk_ORDER_CUSTOMER FOREIGN KEY(CustomerEmail) REFERENCES CUSTOMER(Email),
+  CONSTRAINT fk_ORDER_MANAGER FOREIGN KEY(ManagerEmail) REFERENCES MANAGER(Email),
+  CONSTRAINT check_status CHECK(Status IN ('PENDING', 'COMPLETED', 'DELIVERING', 'DELIVERED', 'PROCESSING', 'COLLECTING','CANCELLED'))
 );
 
-CREATE TABLE SERVICE( --reference table
-  operationID varchar(50),
-  clothType varchar(100),
-  laundryID varchar(50),
-  constraint pk_Service PRIMARY KEY(operationID),
-  constraint uniq_Service UNIQUE(clothType,laundryID),
-  constraint fk_Service FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID) ON DELETE CASCADE
+CREATE TYPE FULL_NAME AS (
+  FirstName varchar(100),
+  MiddleName varchar(100),
+  LastName varchar(100)
 );
 
-CREATE TABLE DryWash(
-  operationID varchar(50),
-  laundryID varchar(50),
-  price numeric,
-  constraint pk_DryWash PRIMARY KEY(operationID),
-  constraint uniq_DryWash UNIQUE(laundryID),
-  constraint fk_DryWash FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID) ON DELETE CASCADE,
-  constraint fk_DryWashService FOREIGN KEY(operationID) REFERENCES SERVICE(operationID) ON DELETE CASCADE
+
+CREATE TABLE BILLING(
+  BillingID varchar(100),
+  OrderID varchar(100),
+  PhoneNumber varchar(15),
+  Address ADDRESS_TYPE,
+  FullName FULL_NAME,
+  PaymentMethod varchar(10),
+  Amount double precision,
+  CONSTRAINT pk_BILLING PRIMARY KEY(BillingID),
+  CONSTRAINT fk_BILLING FOREIGN KEY(OrderID) REFERENCES ORDERS(OrderId)
 );
 
-CREATE TABLE Wash(
-  operationID varchar(50),
-  laundryID varchar(50),
-  price numeric,
-  constraint pk_Wash PRIMARY KEY(operationID),
-  constraint uniq_Wash UNIQUE(laundryID),
-  constraint fk_Wash FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID) ON DELETE CASCADE,
-  constraint fk_WashService FOREIGN KEY(operationID) REFERENCES SERVICE(operationID) ON DELETE CASCADE
+CREATE TABLE SERVICE(
+  ManagerEmail varchar(100),
+  ClothType varchar(50),
+  Operation varchar(50),
+  Price double precision,
+  CONSTRAINT pk_SERVICE PRIMARY KEY(ManagerEmail,ClothType,Operation),
+  CONSTRAINT fk_SERVICE FOREIGN KEY(ManagerEmail) REFERENCES USERS(Email) ON DELETE CASCADE
 );
 
-CREATE TABLE WashAndIron(
-  operationID varchar(50),
-  laundryID varchar(50),
-  price numeric,
-  constraint pk_WashAndIron PRIMARY KEY(operationID),
-  constraint uniq_WashAndIron UNIQUE(laundryID),
-  constraint fk_WashAndIron FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID) ON DELETE CASCADE,
-  constraint fk_WashAndIronService FOREIGN KEY(operationID) REFERENCES SERVICE(operationID) ON DELETE CASCADE
-);
 
-CREATE TABLE Iron(
-  operationID varchar(50),
-  laundryID varchar(50),
-  price numeric,
-  constraint pk_Iron PRIMARY KEY(operationID),
-  constraint uniq_Iron UNIQUE(laundryID),
-  constraint fk_Iron FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID) ON DELETE CASCADE,
-  constraint fk_IronService FOREIGN KEY(operationID) REFERENCES SERVICE(operationID) ON DELETE CASCADE
+CREATE TABLE DELIVERY_INFORMATION(
+  BillingID varchar(100),
+  OrderID varchar(100),
+  DeliveryEmail varchar(100),
+  CONSTRAINT pk_DELIVERY_INFORMATION PRIMARY KEY(BillingID,OrderID),
+  CONSTRAINT fk_DELIVERY_INFORMATION FOREIGN KEY(DeliveryEmail) REFERENCES DELIVERY(Email)
 );
 
 
 CREATE TABLE ORDER_DETAILS(
-  orderID varchar(100),
-  clothID varchar(100),
-  CONSTRAINT pk_OrderDetails PRIMARY KEY(clothID),
-  CONSTRAINT fk_OrderDetails FOREIGN KEY(orderID) REFERENCES ORDERS(orderID) ON DELETE CASCADE
-);
-
-CREATE TABLE ClothClassification(
-  clothID varchar(100),
-  clothType varchar(100),
-  laundryID varchar(50),
-  CONSTRAINT pk_ClothClassification PRIMARY KEY(clothID),
-  CONSTRAINT fk_ClothClassification FOREIGN KEY(clothID) REFERENCES ORDER_DETAILS(clothID),
-  CONSTRAINT fk_ClothClassificationService FOREIGN KEY(clothType,laundryID) REFERENCES SERVICE(clothType,laundryID) ON DELETE CASCADE
-);
-
-CREATE TABLE ORDER_STATUS(
-  orderID varchar(100),
-  paidAmount NUMERIC,
-  delivered BOOLEAN,
-  CONSTRAINT pk_OrderStatus PRIMARY KEY(orderID),
-  CONSTRAINT fk_OrderStatus FOREIGN KEY(orderID) REFERENCES ORDERS(orderID) ON DELETE CASCADE
-);
-
-CREATE TABLE Notification(
-  NotificationID varchar(100),
-  NotificationMessage varchar(255),
-  laundryID varchar(50),
-  email varchar(100),
-  CONSTRAINT pk_Notification PRIMARY KEY(NotificationID),
-  CONSTRAINT fk_NotificationUSERS FOREIGN KEY (email) REFERENCES USERS(email),
-  CONSTRAINT fk_NotificationLaundry FOREIGN KEY(laundryID) REFERENCES LAUNDRY(laundryID)
+  OrderID varchar(100),
+  ClothType varchar(50),
+  Operation varchar(50),
+  ManagerEmail varchar(100),
+  Completed BOOLEAN,
+  Quantity INT,
+  CONSTRAINT pk_ORDER_DETAILS PRIMARY KEY(OrderID,ClothType,Operation),
+  CONSTRAINT fk_ORDER_DETAILS_MANAGER FOREIGN KEY(ManagerEmail) REFERENCES MANAGER(Email),
+  CONSTRAINT fk_ORDER_DETAILS_ORDER FOREIGN KEY(OrderID) REFERENCES ORDERS(OrderID) ON DELETE CASCADE,
+  CONSTRAINT fk_ORDER_DETAILS_SERVICE FOREIGN KEY(ManagerEmail,ClothType,Operation) REFERENCES SERVICE(ManagerEmail,ClothType,Operation)
 );
 
 
+CREATE TABLE REVIEW_DELIVERY(
+  DeliveryEmail varchar(100),
+  CustomerEmail varchar(100),
+  ReviewStars numeric,
+  Review varchar(250),
+  CONSTRAINT pk_REVIEW_DELIVERY PRIMARY KEY(DeliveryEmail,CustomerEmail),
+  CONSTRAINT fk_REVIEW_DELIVERY_DELIVERY FOREIGN KEY(DeliveryEmail) REFERENCES DELIVERY(Email),
+  CONSTRAINT fk_REVIEW_DELIVERY_CUSTOMER FOREIGN KEY(CustomerEmail) REFERENCES CUSTOMER(Email)
+);
 
-
-
-
+CREATE TABLE REVIEW_LAUNDRY(
+  ManagerEmail varchar(100),
+  CustomerEmail varchar(100),
+  ReviewStars numeric,
+  Review varchar(250),
+  CONSTRAINT pk_REVIEW_MANAGER PRIMARY KEY(ManagerEmail,CustomerEmail),
+  CONSTRAINT fk_REVIEW_MANAGER_MANAGER FOREIGN KEY(ManagerEmail) REFERENCES MANAGER(Email),
+  CONSTRAINT fk_REVIEW_MANAGER_CUSTOMER FOREIGN KEY(CustomerEmail) REFERENCES CUSTOMER(Email)
+);
