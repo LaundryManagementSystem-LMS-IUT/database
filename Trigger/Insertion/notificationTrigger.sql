@@ -3,7 +3,7 @@ RETURNS TRIGGER AS $$
 DECLARE
   notificationid TEXT;
 BEGIN
-  notificationid := LPAD(CAST(nextval('message_sequence') AS TEXT), 10, '0') || '-' || to_char(current_date, 'YYYYMMDD')||'-'||NEW.Email;
+  notificationid := LPAD(CAST(nextval('notification_sequence') AS TEXT), 10, '0') || '-' || to_char(current_date, 'YYYYMMDD')||'-'||NEW.Email;
   NEW.notificationid := notificationid;
   RETURN NEW;
 END;

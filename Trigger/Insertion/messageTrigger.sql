@@ -3,7 +3,7 @@ RETURNS TRIGGER AS $$
 DECLARE
   messageid TEXT;
 BEGIN
-  messageid := LPAD(CAST(nextval('message_sequence') AS TEXT), 10, '0') || '-' || to_char(current_date, 'YYYYMMDD');
+  messageid := LPAD(CAST(nextval('message_sequence') AS TEXT), 10, '0') || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS.MS');
   NEW.messageid := messageid;
   RETURN NEW;
 END;
