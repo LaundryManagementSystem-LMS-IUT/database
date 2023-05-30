@@ -10,6 +10,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER order_insert_notification
-BEFORE INSERT ON ORDERS
+AFTER INSERT ON orders
 FOR EACH ROW
 EXECUTE FUNCTION order_notification_trigger();

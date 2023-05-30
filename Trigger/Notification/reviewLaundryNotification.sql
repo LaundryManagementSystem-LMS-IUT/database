@@ -10,6 +10,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER review_laundry_insert_notification
-BEFORE INSERT ON REVIEW_LAUNDRY
+BEFORE INSERT ON REVIEW_LAUNDRIES
 FOR EACH ROW
 EXECUTE FUNCTION review_laundry_trigger();

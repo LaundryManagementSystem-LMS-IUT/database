@@ -12,6 +12,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER chat_insert_notification
-BEFORE INSERT ON CHAT_RECEIVER
+BEFORE INSERT ON chat_receivers
 FOR EACH ROW
 EXECUTE FUNCTION chat_receiver_trigger();

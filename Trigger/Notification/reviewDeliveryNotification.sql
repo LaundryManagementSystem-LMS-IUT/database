@@ -10,6 +10,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER review_insert_delivery_notification
-BEFORE INSERT ON REVIEW_DELIVERY
+BEFORE INSERT ON REVIEW_DELIVERIES
 FOR EACH ROW
 EXECUTE FUNCTION review_delivery_trigger();

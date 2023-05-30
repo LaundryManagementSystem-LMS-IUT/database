@@ -10,6 +10,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER chat_insert
-BEFORE INSERT ON chat
+BEFORE INSERT ON chats
 FOR EACH ROW
 EXECUTE FUNCTION messages_trigger_chat();

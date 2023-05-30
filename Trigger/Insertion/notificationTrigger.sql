@@ -10,6 +10,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER notification_insert
-BEFORE INSERT ON notification
+BEFORE INSERT ON notifications
 FOR EACH ROW
 EXECUTE FUNCTION notification_trigger();
