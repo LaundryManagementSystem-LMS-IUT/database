@@ -1,10 +1,10 @@
 CREATE OR REPLACE FUNCTION notification_trigger()
 RETURNS TRIGGER AS $$
 DECLARE
-  notificationid TEXT;
+  notification_id TEXT;
 BEGIN
-  notificationid := LPAD(CAST(nextval('notification_sequence') AS TEXT), 10, '0') || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS')||'-'||NEW.Email;
-  NEW.notificationid := notificationid;
+  notification_id := LPAD(CAST(nextval('notification_sequence') AS TEXT), 10, '0') || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS')||'-'||NEW.Email;
+  NEW.notification_id := notification_id;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

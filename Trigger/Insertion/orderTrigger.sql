@@ -1,10 +1,10 @@
 CREATE OR REPLACE FUNCTION order_trigger()
 RETURNS TRIGGER AS $$
 DECLARE
-  orderid TEXT;
+  order_id TEXT;
 BEGIN
-  orderid := NEW.ManagerEmail||'-'||NEW.CustomerEmail||'-'||LPAD(CAST(nextval('order_sequence') AS TEXT), 5, '0') || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS');
-  NEW.orderid := orderid;
+  order_id := NEW.ManagerEmail||'-'||NEW.CustomerEmail||'-'||LPAD(CAST(nextval('order_sequence') AS TEXT), 5, '0') || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS');
+  NEW.order_id := order_id;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
