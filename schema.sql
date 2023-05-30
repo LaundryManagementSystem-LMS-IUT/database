@@ -82,7 +82,7 @@ CREATE TABLE DELIVERY(
 
 CREATE TABLE CHAT(
   MessageID varchar(100),
-  Message varchar(250),
+  Message TEXT,
   TimeOfDelivery timestamp,
   CONSTRAINT pk_CHAT PRIMARY KEY(MessageID)
 );
@@ -106,7 +106,7 @@ CREATE TABLE CHAT_RECEIVER(
 CREATE TABLE NOTIFICATION(
   NotificationID varchar(100),
   Email varchar(100),
-  Message varchar(250),
+  Message TEXT,
   CONSTRAINT pk_NOTIFICATION PRIMARY KEY(NotificationID),
   CONSTRAINT fk_NOTIFICATION FOREIGN KEY(Email) REFERENCES USERS(Email)
 );
@@ -179,7 +179,7 @@ CREATE TABLE REVIEW_DELIVERY(
   DeliveryEmail varchar(100),
   CustomerEmail varchar(100),
   ReviewStars numeric,
-  Review varchar(250),
+  Review TEXT,
   CONSTRAINT pk_REVIEW_DELIVERY PRIMARY KEY(DeliveryEmail,CustomerEmail),
   CONSTRAINT fk_REVIEW_DELIVERY_DELIVERY FOREIGN KEY(DeliveryEmail) REFERENCES DELIVERY(Email),
   CONSTRAINT fk_REVIEW_DELIVERY_CUSTOMER FOREIGN KEY(CustomerEmail) REFERENCES CUSTOMER(Email)
@@ -189,7 +189,7 @@ CREATE TABLE REVIEW_LAUNDRY(
   ManagerEmail varchar(100),
   CustomerEmail varchar(100),
   ReviewStars numeric,
-  Review varchar(250),
+  Review TEXT,
   CONSTRAINT pk_REVIEW_MANAGER PRIMARY KEY(ManagerEmail,CustomerEmail),
   CONSTRAINT fk_REVIEW_MANAGER_MANAGER FOREIGN KEY(ManagerEmail) REFERENCES MANAGER(Email),
   CONSTRAINT fk_REVIEW_MANAGER_CUSTOMER FOREIGN KEY(CustomerEmail) REFERENCES CUSTOMER(Email)
