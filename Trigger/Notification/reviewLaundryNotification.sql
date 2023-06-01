@@ -3,8 +3,8 @@ RETURNS TRIGGER AS $$
 DECLARE
   CustomerName varchar(100);
 BEGIN
-  SELECT Username INTO CustomerName from CUSTOMER,USERS WHERE CUSTOMER.Email=NEW.CustomerEmail AND CUSTOMER.Email=USERS.Email;
-  INSERT INTO NOTIFICATION(Email,Message) VALUES(NEW.ManagerEmail,'A Review Has Been Added By '||CustomerName);
+  SELECT Username INTO CustomerName from CUSTOMERS,USERS WHERE CUSTOMERS.Email=NEW.customer_email AND CUSTOMERS.Email=USERS.Email;
+  INSERT INTO NOTIFICATIONS(Email,Message) VALUES(NEW.manager_email,'A Review Has Been Added By '||CustomerName);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

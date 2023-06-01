@@ -3,7 +3,7 @@ RETURNS TRIGGER AS $$
 DECLARE
   order_id TEXT;
 BEGIN
-  order_id := NEW.ManagerEmail||'-'||NEW.CustomerEmail||'-'||LPAD(CAST(nextval('order_sequence') AS TEXT), 5, '0') || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS');
+  order_id := NEW.manager_email||'-'||LPAD(CAST(nextval('order_sequence') AS TEXT), 5, '0') || '-' || TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS');
   NEW.order_id := order_id;
   RETURN NEW;
 END;

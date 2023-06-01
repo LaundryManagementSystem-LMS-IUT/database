@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION order_update_notification()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO NOTIFICATION(Email,Message) VALUES(NEW.CustomerEmail,'Order Status Has Been Updated to '||NEW.Status||' of Order ID: '||NEW.order_id);
+  INSERT INTO NOTIFICATIONS(Email,Message) VALUES(NEW.customer_email,'Order Status Has Been Updated to '||NEW.Status||' of Order ID: '||NEW.order_id);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
